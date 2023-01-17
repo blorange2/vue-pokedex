@@ -1,8 +1,8 @@
 <template>
-	<li>{{ number }} - {{ displayName }}</li>
+	<div class="pokedex-card">{{ number }} - {{ displayName }}</div>
 </template>
 
-<script setup="{{props}}">
+<script setup="props">
 	import { defineProps, computed } from 'vue';
 
 	const props = defineProps({
@@ -16,11 +16,15 @@
 		}
 	});
 
-	console.log(props.name);
-
 	const displayName = computed(() => {
 		return props.name[0].toUpperCase() + props.name.substring(1);
 	});
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="css" scoped>
+	.pokedex-card {
+		flex: 25%;
+		max-width: 25%;
+		padding: 15px;
+	}
+</style>
