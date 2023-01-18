@@ -94,7 +94,7 @@
 		background-color: rgba($color: #000000, $alpha: 0.8);
 		z-index: 99;
 		width: 100%;
-		position: fixed;
+		// position: fixed;
 		color: #fff;
 
 		nav {
