@@ -2,36 +2,50 @@
 	<div>
 		<nav class="subnav">
 			<div class="subnav__top">
-				<div class="subnav__left">
-					<a class="subnav__title" href="">{{ title }}</a>
-					<div class="subnav__links">
-						<li v-for="(page, pageIndex) in chunkedPages" :key="pageIndex" class="subnav__link">
-							<a href="">
-								{{ page.name }}
-								<span class="pl-2" v-if="page.subpages.length">
-									<i class="fa fa-caret-down"></i>
-								</span>
-							</a>
+				<div class="subnav__logo">
+					<a class="subnav__title" href="https://google.co.uk">{{ title }}</a>
+				</div>
 
-							<div v-if="page.subpages.length" class="subnav__dropdown">
-								<div v-for="subpageChunk in page.subpageChunks" :key="subpageChunk" class="subnav__column">
-									<a class="subnav__dropdown-item" v-for="subpage in subpageChunk" :key="subpage.name">
-										{{ subpage.name }}
-									</a>
+				<div class="subnav__main" :class="{ active: mobileMenuActive }">
+					<div class="subnav__link-container">
+						<ul class="subnav__links">
+							<li v-for="(page, pageIndex) in chunkedPages" :key="pageIndex" class="subnav__link" :class="{ 'has-dropdown': page.subpages.length, open: page.subpagesOpen }">
+								<a href="#">
+									{{ page.name }}
+									<span class="subnav__expand-icon" v-if="page.subpages.length" @click="openMenu(pageIndex)">
+										<i class="fa fa-caret-down"></i>
+									</span>
+								</a>
+
+								<div v-if="page.subpages.length" class="subnav__dropdown">
+									<div v-for="subpageChunk in page.subpageChunks" :key="subpageChunk" class="subnav__column">
+										<a class="subnav__dropdown-item" v-for="subpage in subpageChunk" :key="subpage.name">
+											{{ subpage.name }}
+										</a>
+									</div>
 								</div>
-							</div>
-						</li>
+							</li>
+						</ul>
 					</div>
 				</div>
 
-				<div class="subnav__right">
-					<span>
-						{{ callToAction }} <br />
-						{{ action }}
-					</span>
+				<div class="subnav__actions">
+					<div class="subnav__text">
+						<span>
+							{{ callToAction }} <br />
+							{{ action }}
+						</span>
+					</div>
+
+					<a class="ml-4 btn btn-subnav" href="">{{ buttonOptions.text }}</a>
 				</div>
 
-				<a class="ml-4 btn btn-subnav" href="">{{ buttonOptions.text }}</a>
+				<div class="subnav__hamburger" @click="toggleMenu">
+					<span></span>
+					<span></span>
+					<span></span>
+					<span></span>
+				</div>
 			</div>
 
 			<div class="subnav__bottom">
@@ -66,11 +80,12 @@
 	export default {
 		data() {
 			return {
+				mobileMenuActive: false,
 				title: 'Finance',
 				callToAction: 'Need help?',
 				action: 'Call 07743327933',
 				buttonOptions: {
-					text: 'Apply for Finance'
+					text: 'Apply'
 				},
 				keyPoints: ['Get a decision within 48 hours', 'Market leading rates and terms', 'Trustpilot rating'],
 				itemsPerRow: 5,
@@ -78,6 +93,7 @@
 					{
 						name: 'Property Finance',
 						url: 'https://google.co.uk',
+						subpagesOpen: false,
 						subpages: [
 							{
 								name: 'Mansion',
@@ -111,6 +127,7 @@
 					},
 					{
 						name: 'Business Finance',
+						subpagesOpen: false,
 						subpages: [
 							{
 								name: 'Clothing'
@@ -146,6 +163,20 @@
 				]
 			};
 		},
+		methods: {
+			toggleMenu() {
+				this.mobileMenuActive = !this.mobileMenuActive;
+			},
+			openMenu(index) {
+				this.pages.forEach((page, pageIndex) => {
+					if (pageIndex != index) {
+						page.subpagesOpen = false;
+					}
+				});
+
+				this.pages[index].subpagesOpen = !this.pages[index].subpagesOpen;
+			}
+		},
 		computed: {
 			chunkedPages() {
 				return this.pages.map((page) => {
@@ -161,6 +192,34 @@
 
 <style lang="scss" scoped>
 	.subnav {
+		&__hamburger {
+			margin-left: 0.5rem;
+			display: none;
+			position: relative;
+			z-index: 1;
+			border: none;
+			outline: 1;
+			cursor: pointer;
+			appearance: none;
+
+			span {
+				display: block;
+				width: 33px;
+				height: 4px;
+				margin-bottom: 4px;
+				background-color: #21abef;
+				border-radius: 6px;
+				z-index: 1;
+				transition: 0.4s;
+			}
+		}
+		position: relative;
+		a.subnav__title:hover {
+			color: #fff;
+		}
+
+		font-family: 'CircularStd';
+
 		&__top {
 			width: 100%;
 			margin: 0 auto;
@@ -170,14 +229,14 @@
 			padding: 0.5rem 1rem;
 		}
 
-		&__left {
+		&__main {
 			display: flex;
 			align-items: center;
 		}
 
 		&__title {
-			color: #fff;
-			font-size: 30px;
+			color: #21abef;
+			font-size: 1.2rem;
 			font-weight: 900;
 			padding: 1rem 1rem 1rem 1rem;
 			text-decoration: none;
@@ -185,6 +244,9 @@
 
 		&__links {
 			display: flex;
+			flex-direction: row;
+			padding: 0;
+			margin: 0;
 
 			ul,
 			li {
@@ -193,10 +255,12 @@
 		}
 
 		&__link {
+			position: relative;
+
 			> a {
 				padding: 1rem 0rem 1rem 1rem;
 				color: #fff;
-				font-size: 1.2rem;
+				font-size: 1rem;
 				text-decoration: none;
 
 				&:hover,
@@ -214,13 +278,17 @@
 		}
 
 		&__dropdown {
+			transition: ease 0.5s;
 			display: none;
 			position: absolute;
+			z-index: 1;
+			top: 56px;
 			background-color: #f6f6f6;
-			margin: 0.75rem 0 0 0;
+
 			padding: 0.5rem 0;
-			width: 100%;
-			max-width: 250px;
+			height: auto;
+			width: auto;
+
 			box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
 
 			&-item {
@@ -238,22 +306,40 @@
 			}
 		}
 
+		&__expand-icon {
+			padding-left: 0.5rem;
+		}
+
 		&__column {
 			flex: 0 0 50%;
 			max-width: 50%;
+
+			&:only-child {
+				flex: 0 0 100%;
+				max-width: 100%;
+			}
 		}
 
-		&__right {
+		&__actions {
 			margin-left: auto;
+			margin-right: 0.5rem;
 			color: #fff;
+			display: flex;
+			align-items: center;
 
 			span {
 				font-size: 1rem;
 			}
 		}
 
+		&__text {
+			span {
+				display: block;
+			}
+		}
+
 		&__bottom {
-			display: flex;
+			display: none;
 			justify-content: space-around;
 			padding: 0.8rem;
 			background-color: #083b71;
@@ -269,6 +355,19 @@
 				background-color: #fff;
 				height: 20px;
 			}
+		}
+	}
+
+	.btn-subnav {
+		font-size: 1rem;
+		font-weight: 600;
+		padding: 1rem;
+		background-color: #feea78;
+		color: #214f7d;
+
+		&:hover {
+			color: #fff;
+			background-color: #083b71;
 		}
 	}
 
@@ -291,9 +390,15 @@
 
 		&-subnav {
 			font-size: 1rem;
+			font-weight: 600;
 			padding: 1rem;
 			background-color: #feea78;
 			color: #214f7d;
+
+			&:hover {
+				color: #fff;
+				background-color: #083b71;
+			}
 		}
 	}
 
@@ -363,5 +468,67 @@
 
 	.pl-2 {
 		padding-left: 0.5rem;
+	}
+
+	@media (max-width: 1152px) {
+		.subnav__main {
+			display: none;
+		}
+
+		.subnav__main.active {
+			display: block;
+			height: auto;
+			left: 0;
+			margin-top: 30px;
+			overflow-x: hidden;
+			overflow-y: scroll;
+			position: absolute;
+			top: 43px;
+			width: 100vw;
+			background-color: #083b71;
+		}
+
+		.subnav__text {
+			display: none;
+		}
+
+		.subnav__expand-icon {
+			position: absolute;
+			right: 0;
+		}
+
+		.subnav__links {
+			flex-direction: column;
+			margin-bottom: 48px;
+			padding-left: 15px;
+			padding-right: 15px;
+		}
+
+		.subnav__link {
+			border-bottom: 1px solid #fff;
+			padding: 20px 0 10px;
+
+			&:hover {
+				.subnav__dropdown {
+					display: none;
+				}
+			}
+		}
+
+		.subnav__hamburger {
+			display: block;
+		}
+
+		.subnav__dropdown {
+			display: none;
+		}
+
+		.subnav__link.open .subnav__dropdown {
+			display: block;
+			position: relative;
+			top: 15px;
+			margin-bottom: 15px;
+			width: 100%;
+		}
 	}
 </style>
